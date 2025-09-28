@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheppersinstituut Mechelen - Google Maps</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        #map-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .right-panel {
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .location-title {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stars {
+            color: #fbbc04;
+            margin-right: 8px;
+        }
+
+        .rating-count {
+            color: #5f6368;
+            font-size: 14px;
+        }
+
+        .category {
+            color: #5f6368;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .verified {
+            color: #1a73e8;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #dadce0;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border: none;
+        }
+
+        .description {
+            padding: 16px 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 16px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #1a73e8;
+            color: #1a73e8;
+        }
+
+        .tab-content {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .accessibility-list {
+            list-style: none;
+        }
+
+        .accessibility-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .checkmark {
+            color: #34a853;
+            margin-right: 10px;
+        }
+
+        .review {
+            padding: 16px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .review:last-child {
+            border-bottom: none;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5f6368;
+        }
+
+        .reviewer-info {
+            flex: 1;
+        }
+
+        .reviewer-name {
+            font-weight: 500;
+        }
+
+        .reviewer-badge {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 2px;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .review-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .show-translation {
+            color: #1a73e8;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 24px;
+            margin-right: 16px;
+            color: #5f6368;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .info-detail {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        .hours-table {
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .hours-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .hours-day {
+            font-weight: 500;
+        }
+
+        .hours-time {
+            color: #5f6368;
+        }
+
+        .map-controls {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            right: 20px;
+            top: 80px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        .bottom-controls {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .nav-control {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .compass {
+            position: absolute;
+            right: 20px;
+            top: 150px;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                flex-direction: column;
+            }
+            
+            .right-panel {
+                width: 100%;
+            }
+            
+            .action-buttons {
+                justify-content: space-between;
+            }
+            
+            .btn {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="map-container">
+        <div id="map"></div>
+        
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <button class="control-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="control-btn" onclick="toggleLayers()">
+                <i class="fas fa-layer-group"></i>
+            </button>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+        </div>
+
+        <!-- Compass -->
+        <div class="compass" onclick="resetNorth()">N</div>
+
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+            <button class="nav-control" onclick="startNavigation()">
+                <i class="fas fa-route"></i> Route
+            </button>
+            <button class="nav-control" onclick="locateUser()">
+                <i class="fas fa-location-arrow"></i> Mijn locatie
+            </button>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="left-panel">
+            <div class="header">
+                <h1 class="location-title">Ilias Vannieuwenhuyze</h1>
+                <div class="rating">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="rating-count">4,3 ★★★★★ (867)</span>
+                </div>
+                <div class="category">
+                    Scholier <span class="verified">✅</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn"><i class="fas fa-route"></i> Route</button>
+                    <button class="btn"><i class="far fa-bookmark"></i> Opslaan</button>
+                    <button class="btn"><i class="fas fa-map-marker-alt"></i> In de buurt</button>
+                    <button class="btn"><i class="fas fa-mobile-alt"></i> Naar telefoon verzenden</button>
+                    <button class="btn"><i class="fas fa-share"></i> Delen</button>
+                </div>
+            </div>
+            
+            <div class="description">
+                Een rasechte Maneblusser, scholier aan het Scheppersinstituut in Mechelen, presenteert op een originele manier zichzelf voor een opdracht voor het vak Nederlands.
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('overview')">Overzicht</div>
+                <div class="tab" onclick="switchTab('programs')">Studierichting</div>
+                <div class="tab" onclick="switchTab('reviews')">Reviews</div>
+                <div class="tab" onclick="switchTab('about')">Over</div>
+            </div>
+            
+            <div class="tab-content" id="overview-tab">
+                <h2 class="section-title">Persoonlijke kenmerken</h2>
+                <ul class="accessibility-list">
+                    <li class="accessibility-item">
+                        <i class="fas fa-check checkmark"></i> Ambitieus
+                    </li>
+                    <li class="accessibility-item">
+                        <i class="fas fa-check checkmark"></i> Voorzichtig
+                    </li>
+                    <li class="accessibility-item">
+                        <i class="fas fa-check checkmark"></i> Creatief
+                    </li>
+                    <li class="accessibility-item">
+                        <i class="fas fa-check checkmark"></i> Logisch
+                    </li>
+                    <li class="accessibility-item">
+                        <i class="fas fa-check checkmark"></i> Spontaan
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tab-content" id="reviews-tab" style="display: none;">
+                <div class="review">
+                    <div class="review-header">
+                        <div class="reviewer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Ilias Vannieuwenhuyze</div>
+                            <div class="reviewer-badge">scholier · 3 reviews · 0 foto's</div>
+                        </div>
+                        <div class="review-date">1 dag geleden</div>
+                    </div>
+                    <div class="rating">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                        <p>Ik schrijf deze zelfreview om meer inzicht te krijgen in de voor- en nadelen van mijn ambitieuze instelling.
+                        </p>
+                        <br>
+                        <p>Ik ben zeer ambitieus. Ik denk altijd graag na over wat ik later zou willen doen. Zo heb ik al een heel plan voor ogen: ik wil later namelijk succesvol worden. Daarom programmeer ik nu al, zodat ik een goede basis heb voor later.
+                        Aan de andere kant blijft het vooral bij de ideeën. Ik moet meer het heft in eigen handen nemen. Ik heb dus meer discipline nodig, want zo kan ik consistent op mijn vaardigheden oefenen. Als ik bijvoorbeeld elke dag een codeerprobleem oplos, dan zal ik zeer goed zijn tegen het einde van het jaar.
+                        </p>
+                        <br>
+                        <p>Kortom, ben ik iemand met veel ideeën, maar weinig inzet. Als ik consistent investeer in mijn talenten, dan zal ik mijn doel bereiken.</p>
+                    </div>
+                    <div class="show-translation">Vertaling tonen (Mechels)</div>
+                </div>
+                
+                <div class="review">
+                    <div class="review-header">
+                        <div class="reviewer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Ilias Vannieuwenhuyze</div>
+                            <div class="reviewer-badge">scholier · 3 reviews · 0 foto's</div>
+                        </div>
+                        <div class="review-date">1 dag geleden</div>
+                    </div>
+                    <div class="rating">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                        <p>Voor veel dingen in het leven ben ik erg voorzichtig. Daarom wil ik inzicht krijgen in mijn plus- en minpunten wat betreft mijn voorzichtigheid.
+                        </p>
+                        <br>
+                        <p>Ik vind het goed dat ik voorzichtig ben, want dat is belangrijk voor bijvoorbeeld tijdens practica's voor Chemie. Zo laat ik niks breken. Bovendien is het ook belangrijker in het verkeer, zeker sinds de toename van het aantal SUV's op de weg.
+                        Anderzijds blokkeert deze voorzichtigheid me de toegang tot nieuwe wegen. Ik zou meer moeten stappen uit mijn comfortzone, het lijkt me een saai leven alsof alles exact hetzelfde zou blijven. Daarom denk ik dat het belangrijk is om eens nieuwe wegen te bewandelen.
+                        </p>
+                        <br>
+                        <p>Al met al moet ik een stuk assertiever worden, want het leven is kort. Een eentonig leven, dat wil ik niet. Ik wil wel meer spanning.</p>
+                    </div>
+                </div>
+                
+                <div class="review">
+                    <div class="review-header">
+                        <div class="reviewer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Ilias Vannieuwenhuyze</div>
+                            <div class="reviewer-badge">Scholier · 3 reviews · 0 foto's</div>
+                        </div>
+                        <div class="review-date">2 dagen geleden</div>
+                    </div>
+                    <div class="rating">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                    <p>Dit vind ik veruit mijn sterkste eigenschap. In deze zelfreflectie wil ik dit verder ontleden door te kijken naar mijn min- en pluspunten.</p>
+                    <br>
+                    <p>Ik ben heel blij dat ik kritisch kan denken, want dit geeft me een gigantisch voordeel. Zo bespaar ik bijvoorbeeld heel veel tijd. Ik had bijvoorbeeld onlangs ontdekt dat Typst veel gebruiksvriendelijker is dan Word. Bovendien bespaar ik er in sommige gevallen ook nog eens geld mee.
+                        Anderzijds beland ik daardoor vaak in discussies met mijn vrienden, omdat onze meningen zo hard verschillen. Ik herinner me bijvoorbeeld een discussie die ik met Lyubomir hield over een besturingssysteem. 
+                    </p>
+                    <br>
+                    <p>Kortom, denk ik dat het goed is om een kritische houding aan te nemen, maar soms moet ik ervan afstappen.
+                    </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="about-tab" style="display: none;">
+                <h2 class="section-title">Over Ilias Vannieuwenhuyze</h2>
+                <p>Ilias Vannieuwenhuyze is een programmeur en student uit België, afkomstig uit Mechelen. 
+                <br>
+                <br>
+                <p>Hij is heel bekend door zijn uitzonderlijke technische vaardigheden. Zo heeft hij bijvoorbeeld al sollicitatievragen opgelost van FAANG-bedrijven (Facebook, Amazon, Apple, Netflix, Google). Daarnaast is hij ook een erg behulpzame persoon die altijd klaar staat om mensen te helpen. Verder staat hij bekend als een wiskundig genie die graag extra uitdaging heeft. Hij volgt dan ook graag uitdagende vakken, zoals acht uur wiskunde.</p>
+                <br>
+                <br>
+                <p>Kortom, Ilias is een veelzijdig en getalenteerd persoon.</p>
+            </div>
+            
+            <div class="tab-content" id="programs-tab" style="display: none;">
+                <h2 class="section-title">Studierichting</h2>
+                <ul class="accessibility-list">
+                    <li class="accessibility-item">
+                        <i class="fas fa-graduation-cap"></i> Wetenschappen-Wiskunde
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-title">Adres</div>
+                    <div class="info-detail">Melaan 16, 2800 Mechelen, België</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-title">Telefoon</div>
+                    <div class="info-detail">+32 15 20 28 39</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-title">Website</div>
+                    <div class="info-detail">www.scheppersmechelen.be</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-title">Bereikbaar op:</div>
+                    <div class="hours-table">
+                        <div class="hours-row">
+                            <span class="hours-day">Maandag - Vrijdag</span>
+                            <span class="hours-time">17:00 - 19:00</span>
+                        </div>
+                        <div class="hours-row">
+                            <span class="hours-day">Woensdag</span>
+                            <span class="hours-time">13:00 - 16:00</span>
+                        </div>
+                        <div class="hours-row">
+                            <span class="hours-day">Zaterdag - Zondag</span>
+                            <span class="hours-time">Aan het slapen😴</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="info-content">
+                    <div class="info-title">Directeur</div>
+                    <div class="info-detail">Dhr. Marleen Vervoort</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on Scheppersinstituut Mechelen
+        const map = L.map('map').setView([51.0333, 4.4667], 16);
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add marker for Scheppersinstituut
+        const schoolMarker = L.marker([51.0333, 4.4667]).addTo(map);
+        schoolMarker.bindPopup(`
+            <b>Scheppersinstituut Mechelen</b><br>
+            Melaan 16<br>
+            2800 Mechelen, België
+        `).openPopup();
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content and activate tab
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        // Map controls
+        function zoomIn() {
+            map.zoomIn();
+        }
+
+        function zoomOut() {
+            map.zoomOut();
+        }
+
+        function resetNorth() {
+            map.setBearing(0);
+        }
+
+        function startNavigation() {
+            alert('Navigatie naar Scheppersinstituut Mechelen wordt gestart');
+        }
+
+        function locateUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    map.setView([latitude, longitude], 15);
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup('Uw locatie')
+                        .openPopup();
+                });
+            } else {
+                alert('Geolocatie wordt niet ondersteund door deze browser.');
+            }
+        }
+
+        function toggleSidebar() {
+            alert('Zijbalk wordt hier getoond/verborgen');
+        }
+
+        function toggleLayers() {
+            alert('Laaginstellingen worden hier getoond');
+        }
+    </script>
+</body>
+</html>
